@@ -7,6 +7,7 @@ OBJ_DIR := obj
 BIN_DIR := bin
 SOURCES := $(wildcard $(SRC_DIR)/*.cpp)
 OBJECTS := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SOURCES))
+OBJECTS_PARSE := ./../parsing_util/obj
 TARGET := $(BIN_DIR)/ccwc
 all: $(TARGET)
 

@@ -1,4 +1,4 @@
-#include "wc.h"
+#include "wc.hpp"
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>

@@ -3,7 +3,6 @@
 #include <string>
 
 namespace FH {
-
     enum ffmode {
         BINARY,
         DEFAULT,

@@ -3,20 +3,27 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include "Cut.hpp"
 // // Splits a string based on the delim character
 // std::vector<std::string> split_string(const std::string& s, const char& delim);
 
 // Overload to split string to work with string stream
-std::vector<std::string> split_string(std::stringstream& s, const char& delim)
-{
+std::vector<std::string> Cut::split_string(std::stringstream& s, const char& delim) {
     std::vector<std::string> string_vec;
-    char c = ' ';
-    std::string curr = "";
-    while (!s.eof() || c!='\n'){
-        c = s.get();
-        if (c == delim || c=='\n') {
-            string_vec.push_back(curr);
-            curr = "";
+    std::string curr;
+
+    while (s.good()) {
+        char c = s.get();
+        
+        if (s.eof() || c == '\n' || c == delim) {
+            if (!curr.empty()) {
+                string_vec.push_back(curr);
+                curr.clear();
+            }
+
+            if (s.eof() || c == '\n') {
+                break;
+            }
         } else {
             curr += c;
         }
@@ -26,13 +33,14 @@ std::vector<std::string> split_string(std::stringstream& s, const char& delim)
 }
 
 // Prints the string to stdout based on the positions and delimiter
-void print_split_string(std::stringstream& string, const char& delim, std::vector<int>& positions)
+void Cut::print_split_string(std::stringstream& string, const char& delim, std::vector<int>& positions)
 {
     // Read in string continuously
         // call split string to get back vector
         // loop through positions, printing out string at each (if it exists) otherwise printout ""
     while (!string.eof()){
         std::vector<std::string> string_vec = split_string(string, delim);
+     
         for (auto &num: positions){
             if (num<string_vec.size()) std::cout << string_vec[num] << " ";
             else std::cout << "  "; 
@@ -42,7 +50,7 @@ void print_split_string(std::stringstream& string, const char& delim, std::vecto
 }
 
 
-std::vector<int> getPositions(std::string f){
+std::vector<int> Cut::getPositions(std::string f){
     std::vector<int> positions;
     std::stringstream ss(f);
     std::string token;
@@ -62,4 +70,27 @@ std::vector<int> getPositions(std::string f){
     }
     return positions;
 
+}
+
+char Cut::getChar(const std::string& s){
+    return s[0];
+    // if (s[0]=='\\'){
+    //     // switch cases
+    //     switch (s[1]){
+    //         case 't':{
+    //             return '\t';
+    //         }
+    //         case 'n':{
+    //             return '\n';
+    //         }
+    //         case 'r':{
+    //             return '\r';
+    //         }
+    //         default:{
+    //             return '\0';
+    //         }
+    //     }
+    // } else {
+    //     return s[0];
+    // }
 }

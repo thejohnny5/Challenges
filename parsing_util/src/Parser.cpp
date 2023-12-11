@@ -6,15 +6,16 @@
 #include <sstream>
 
 
-void ArgumentParser::addArgument(const std::string& name, char shortFlag, const std::string& longFlag, bool required, bool hasValue, const std::string& defaultValue, bool stdinAllowed)
+void ArgumentParser::addArgument(const std::string& name, char shortFlag, const std::string& longFlag, bool required, const std::string& description,bool hasValue, const std::string& defaultValue, bool stdinAllowed)
 {
-        arguments.push_back({name, shortFlag, longFlag, required, hasValue, defaultValue, "", false, stdinAllowed});
+    arguments.push_back({name, shortFlag, longFlag, required, description, hasValue, defaultValue, "", false, stdinAllowed});
 }
 
 bool ArgumentParser::parse(int argc, const char* argv[]) {
     bool defaultArgumentUsed = false;
     
     for (int i = 1; i < argc; ++i) {
+
         std::string arg = argv[i];
 
         if (arg[0] == '-') {  // This is a flag
@@ -97,8 +98,10 @@ std::string ArgumentParser::getDefault(){
 
 std::string ArgumentParser::getArgumentValue(const std::string& name){
     for (auto &arg: arguments){
-        if (arg.name == name){
+        if (arg.name == name && arg.used){
             return arg.value;
+        } else if (arg.name == name){
+            return arg.defaultValue;
         }
     }
     std::cerr << "No argument for name: " << name << std::endl;
@@ -106,5 +109,28 @@ std::string ArgumentParser::getArgumentValue(const std::string& name){
 }
 
 void ArgumentParser::showUsage(){
-    std::cout << "Usage: " << std::endl;
+    std::cout << "Usage: " << toolName << " [OPTIONS] <File>" << std::endl;  
+    std::cout << std::endl << "Options: " << std::endl;
+    for (auto &c: arguments){
+        std::cout << "    ";
+        if (c.shortFlag != ' ' && c.longFlag!=""){
+            std::cout << "-" << c.shortFlag << ",--" << c.longFlag;
+        } else if (c.shortFlag == ' '){
+            std::cout << "   --" <<c.longFlag;
+        } else if (c.longFlag == ""){
+            std::cout << "-" << c.shortFlag << " " << "     ";
+        }
+        std::cout << "    " << c.description << std::endl;
+    }
+
+    std::cout << info << std::endl;
+}
+
+bool ArgumentParser::isUsed(const std::string& name){
+    for (auto &arg: arguments){
+        if (arg.name == name){
+            return arg.used;
+        }
+    }
+    return false;
 }

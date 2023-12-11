@@ -25,5 +25,9 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+$(ARGPARSER_OBJ_DIR)/%.o: $(ARGPARSER_SRC_DIR)/%.cpp
+	mkdir -p $(ARGPARSER_OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
-	rm -rf $(OBJ_DIR) $(TARGET)
+	rm -rf $(OBJ_DIR) $(TARGET)  $(ARGPARSER_OBJ_DIR)
