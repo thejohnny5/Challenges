@@ -47,11 +47,12 @@ bool ArgumentParser::parse(int argc, const char* argv[]) {
             ArgumentParser::handleDefaultArgument(arg);
             defaultArgumentUsed = true;
         }
-        if (!defaultArgumentUsed){
-            defaultInputSource = InputSource::Stdin;
-        }
-    }
 
+    }
+    
+    if (!defaultArgumentUsed){
+        defaultInputSource = InputSource::Stdin;
+    }
     // Check for missing required arguments
     for (const auto& cli : arguments) {
         if (cli.required && !cli.used) {
