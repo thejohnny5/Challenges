@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 #include <memory>
 #include <sstream>
+#include <unistd.h>
 
 
 void ArgumentParser::addArgument(const std::string& name, char shortFlag, const std::string& longFlag, bool required, const std::string& description,bool hasValue, const std::string& defaultValue, bool stdinAllowed)
@@ -46,6 +47,9 @@ bool ArgumentParser::parse(int argc, const char* argv[]) {
             ArgumentParser::handleDefaultArgument(arg);
             defaultArgumentUsed = true;
         }
+        if (!defaultArgumentUsed){
+            defaultInputSource = InputSource::Stdin;
+        }
     }
 
     // Check for missing required arguments
@@ -73,23 +77,29 @@ bool fileExists(const std::string& name) {
 }
 
 void ArgumentParser::handleDefaultArgument(const std::string& arg) {
-    if (fileExists(arg)) {
-        std::ifstream fileStream(arg);
-        if (!fileStream) {
-            std::cerr << "Could not open file: " << arg << std::endl;
-            exit(EXIT_FAILURE);
-        }
-
-        std::stringstream buffer;
-        buffer << fileStream.rdbuf(); // Reads the entire content of the file
-
-        default_arg = buffer.str(); //
-    } else {
-        // Treat as a string stream
+   if (fileExists(arg)) {
+        defaultInputSource = InputSource::File;
         default_arg = arg;
-    }
+    }  
+    //  if (isatty(STDIN_FILENO)) {
+        
+    //     std::cout << "Input is from a terminal (or a file redirection)." << std::endl;
+    // } else {
+    //     std::cout << "Input is from a pipe." << std::endl;
+    // }
 
+    // if (fileExists(arg)) {
+    //     defaultInputSource = InputSource::File;
+    //     default_arg = arg;
+    // } else if (arg == "-") {
+    //     defaultInputSource = InputSource::Stdin;
+    // } else {
+    //     defaultInputSource = InputSource::Stdin;
+        // defaultInputSource = InputSource::DirectString;
+        // default_arg = arg;
+    // }
 }
+
 
 std::string ArgumentParser::getDefault(){
     return default_arg;

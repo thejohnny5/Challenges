@@ -17,13 +17,19 @@ struct CommandLineArgument {
     bool used;
     bool stdinAllowed;  // New field to indicate if stdin is allowed as default
 };
-
+enum class InputSource {
+    None,
+    File,
+    Stdin,
+    DirectString
+};
 class ArgumentParser {
 private:
     // Array of CommandLineArguments
     std::vector<CommandLineArgument> arguments;
 
     // the default argument at the end of the command line arg 
+    InputSource defaultInputSource = InputSource::None;
     std::string default_arg;
 
     // Name of the command line tool. Will be displaying in the usage
@@ -56,4 +62,8 @@ public:
     std::string getDefault();
 
     bool isUsed(const std::string& name);
+
+     InputSource getDefaultInputSource() const {
+        return defaultInputSource;
+    }
 };
