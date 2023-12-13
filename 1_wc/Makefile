@@ -1,32 +1,48 @@
 CC=g++
 CFLAGS := -Wall -std=c++17 -g
-#CFLAGS := -I/opt/homebrew/Cellar/sdl2/2.28.5/include/SDL2 -I/opt/homebrew/Cellar/sdl2_image/2.6.3_2/include/SDL2 -Wall -std=c++11
-#LDFLAGS := -L/opt/homebrew/Cellar/sdl2/2.28.5/lib -lSDL2 -L/opt/homebrew/Cellar/sdl2_image/2.6.3_2/lib -lSDL2_image
 SRC_DIR := src
 OBJ_DIR := obj
 BIN_DIR := bin
 ARGPARSER_SRC_DIR := ../parsing_util/src
 ARGPARSER_OBJ_DIR := ../parsing_util/obj
-
-SOURCES := $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(ARGPARSER_SRC_DIR)/*.cpp)
-OBJECTS := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/*.cpp)) \
-           $(patsubst $(ARGPARSER_SRC_DIR)/%.cpp,$(ARGPARSER_OBJ_DIR)/%.o,$(wildcard $(ARGPARSER_SRC_DIR)/*.cpp))
+TEST_DIR := test
+GTEST_DIR := /opt/homebrew/Cellar/googletest/1.14.0
 
 
-TARGET := $(BIN_DIR)/ccwc
+# Exclude main.cpp from the list of source files for the test target
+APPLICATION_SOURCES := $(filter-out $(SRC_DIR)/main.cpp, $(wildcard $(SRC_DIR)/*.cpp))
+APPLICATION_OBJECTS := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(APPLICATION_SOURCES))
+ARGPARSER_OBJECTS := $(patsubst $(ARGPARSER_SRC_DIR)/%.cpp,$(ARGPARSER_OBJ_DIR)/%.o,$(wildcard $(ARGPARSER_SRC_DIR)/*.cpp))
+TEST_SOURCES := $(wildcard $(TEST_DIR)/*.cpp)
+TEST_OBJECTS := $(patsubst $(TEST_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(TEST_SOURCES))
+
+TARGET := $(BIN_DIR)/ccwc # Change this to your main application name
+TEST_TARGET := $(BIN_DIR)/runTests
+
 all: $(TARGET)
 
-$(TARGET): $(OBJECTS)
-	$(CC) $(OBJECTS) -o $@
+$(TARGET): $(APPLICATION_OBJECTS) $(ARGPARSER_OBJECTS)
+	mkdir -p $(BIN_DIR)
+	$(CC) $(APPLICATION_OBJECTS) $(ARGPARSER_OBJECTS) -o $@
+
+$(TEST_TARGET): $(APPLICATION_OBJECTS) $(ARGPARSER_OBJECTS) $(TEST_OBJECTS)
+	$(CC) $(APPLICATION_OBJECTS) $(ARGPARSER_OBJECTS) $(TEST_OBJECTS) -o $@ -lgtest -lpthread
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	mkdir -p $(OBJ_DIR)
-	mkdir -p $(BIN_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -I$(GTEST_DIR)/include -c $< -o $@
+
+$(OBJ_DIR)/%.o: $(TEST_DIR)/%.cpp
+	mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -I$(SRC_DIR) -I$(GTEST_DIR)/include -c $< -o $@
 
 $(ARGPARSER_OBJ_DIR)/%.o: $(ARGPARSER_SRC_DIR)/%.cpp
 	mkdir -p $(ARGPARSER_OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -rf $(OBJ_DIR) $(TARGET) $(ARGPARSER_OBJ_DIR)
+	rm -rf $(OBJ_DIR) $(TARGET) $(TEST_TARGET) $(ARGPARSER_OBJ_DIR)
+
+test: $(TEST_TARGET)
+
+.PHONY: all test clean
