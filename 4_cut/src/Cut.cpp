@@ -4,10 +4,8 @@
 #include <iostream>
 #include <sstream>
 #include "Cut.hpp"
-// // Splits a string based on the delim character
-// std::vector<std::string> split_string(const std::string& s, const char& delim);
 
-// Overload to split string to work with string stream
+// Split string based on delim
 std::vector<std::string> Cut::split_string(std::stringstream& s, const char& delim) {
     std::vector<std::string> string_vec;
     std::string curr;
